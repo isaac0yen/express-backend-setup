@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import { logger } from './logger';
 
 dotenv.config();
 
@@ -17,10 +18,26 @@ const CloudinaryModule = {
       });
       return uploadResult;
     } catch (error) {
-      console.error("Error uploading image:", error);
+      logger.error("Error uploading image:", error);
       throw error;
     }
   },
+
+  uploadVideo: async (filePath: string, publicId?: string) => {
+    try {
+      const uploadResult = await cloudinary.uploader.upload(filePath, {
+        public_id: publicId,
+        resource_type: 'video',
+        chunk_size: 6000000, // 6MB chunks for large videos
+      });
+      return uploadResult;
+    } catch (error) {
+      logger.error("Error uploading video:", error);
+      throw error;
+    }
+  },
+
+
 
   generateOptimizedUrl: (publicId: string) => {
     return cloudinary.url(publicId, {
@@ -36,6 +53,25 @@ const CloudinaryModule = {
       width,
       height,
     });
+  },
+
+  generateVideoUrl: (publicId: string, options?: object) => {
+    return cloudinary.url(publicId, {
+      resource_type: 'video',
+      ...options
+    });
+  },
+
+  deleteResource: async (publicId: string, resourceType: 'image' | 'video' = 'image') => {
+    try {
+      const result = await cloudinary.uploader.destroy(publicId, {
+        resource_type: resourceType
+      });
+      return result;
+    } catch (error) {
+      logger.error(`Error deleting ${resourceType}:`, error);
+      throw error;
+    }
   },
 };
 

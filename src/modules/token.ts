@@ -2,7 +2,11 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 
 interface TokenPayload {
   id: number;
-  email: string;
+  email?: string;
+  role?: string;
+  status?: string;
+  purpose?: string;
+  sessionToken?: string;
 }
 
 const JWT_SECRET: string = process.env.JWT_SECRET || 'YOUR_DEFAULT_JWT_SECRET';
@@ -20,7 +24,7 @@ export const generateToken = (
 export const verifyToken = (token: string): TokenPayload => {
   try {
     return jwt.verify(token, JWT_SECRET) as TokenPayload;
-  } catch (error) {
+  } catch {
     throw new Error('Invalid token');
   }
 };
@@ -28,7 +32,7 @@ export const verifyToken = (token: string): TokenPayload => {
 export const decodeToken = (token: string): TokenPayload | null => {
   try {
     return jwt.decode(token) as TokenPayload;
-  } catch (error) {
+  } catch {
     return null;
   }
 };

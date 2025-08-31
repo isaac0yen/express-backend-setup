@@ -3,7 +3,7 @@ const path = require('path');
 
 async function buildFiles() {
   const files = ['package.json', '.env'];
-  const folders = ['src/templates']; // Ensure this path is correct
+  const folders = []; // Ensure this path is correct
 
   for (const file of files) {
     if (file === 'package.json') {
@@ -45,4 +45,4 @@ async function buildFiles() {
   }
 }
 
-buildFiles().catch(console.error);
+buildFiles().catch(console.error).finally(() => console.log('Finished!'));
