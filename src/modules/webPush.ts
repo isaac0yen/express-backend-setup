@@ -1,12 +1,11 @@
 import webpush from 'web-push';
 import dotenv from 'dotenv';
-import { APP_EMAIL } from '../config/config';
 
 dotenv.config();
 
 // Configure web-push with VAPID keys
 webpush.setVapidDetails(
-  `mailto:${APP_EMAIL}`,
+  'mailto:info@fusevarsity.com',
   process.env.PUBLIC_VAPID_KEY!,
   process.env.PRIVATE_VAPID_KEY!
 );
@@ -25,7 +24,7 @@ interface NotificationPayload {
   icon?: string;
   badge?: string;
   image?: string;
-  data?: unknown;
+  data?: any;
   actions?: Array<{
     action: string;
     title: string;
@@ -68,22 +67,21 @@ const webPushNotification = {
         headers: result.headers,
         shouldRemoveSubscription: false
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       // Handle specific web-push errors
-      const webPushError = error as { statusCode?: number; message?: string };
-      if (webPushError.statusCode === 410 || webPushError.statusCode === 404) {
+      if (error.statusCode === 410 || error.statusCode === 404) {
         return {
           success: false,
           error: 'Subscription expired or invalid',
-          statusCode: webPushError.statusCode,
+          statusCode: error.statusCode,
           shouldRemoveSubscription: true
         };
       }
 
       return {
         success: false,
-        error: webPushError.message || 'Failed to send notification',
-        statusCode: webPushError.statusCode || 500,
+        error: error.message || 'Failed to send notification',
+        statusCode: error.statusCode || 500,
         shouldRemoveSubscription: false
       };
     }
@@ -119,16 +117,13 @@ const webPushNotification = {
   /**
    * Validate a push subscription
    */
-  validateSubscription: (subscription: unknown): subscription is PushSubscription => {
-    if (!subscription || typeof subscription !== 'object') return false;
-
-    const sub = subscription as { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
+  validateSubscription: (subscription: any): subscription is PushSubscription => {
     return (
-      typeof sub.endpoint === 'string' &&
-      sub.keys !== undefined &&
-      typeof sub.keys === 'object' &&
-      typeof sub.keys.p256dh === 'string' &&
-      typeof sub.keys.auth === 'string'
+      subscription &&
+      typeof subscription.endpoint === 'string' &&
+      subscription.keys &&
+      typeof subscription.keys.p256dh === 'string' &&
+      typeof subscription.keys.auth === 'string'
     );
   },
 

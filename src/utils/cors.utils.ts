@@ -4,7 +4,6 @@
  */
 
 import { corsConfig } from '../config/cors.config';
-import { logger } from '../modules/logger';
 
 /**
  * Add a new approved URL to the CORS configuration
@@ -13,9 +12,9 @@ import { logger } from '../modules/logger';
 export const addApprovedUrl = (url: string): void => {
   if (!corsConfig.approvedUrls.includes(url)) {
     corsConfig.approvedUrls.push(url);
-    logger.info(`Added '${url}' to approved CORS origins`);
+    console.log(`Added '${url}' to approved CORS origins`);
   } else {
-    logger.info(`URL '${url}' is already in the approved CORS origins list`);
+    console.log(`URL '${url}' is already in the approved CORS origins list`);
   }
 };
 
@@ -27,9 +26,9 @@ export const removeApprovedUrl = (url: string): void => {
   const index = corsConfig.approvedUrls.indexOf(url);
   if (index > -1) {
     corsConfig.approvedUrls.splice(index, 1);
-    logger.info(`Removed '${url}' from approved CORS origins`);
+    console.log(`Removed '${url}' from approved CORS origins`);
   } else {
-    logger.info(`URL '${url}' not found in approved CORS origins list`);
+    console.log(`URL '${url}' not found in approved CORS origins list`);
   }
 };
 

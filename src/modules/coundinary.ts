@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
-import { logger } from './logger';
 
 dotenv.config();
 
@@ -18,7 +17,7 @@ const CloudinaryModule = {
       });
       return uploadResult;
     } catch (error) {
-      logger.error("Error uploading image:", error);
+      console.error("Error uploading image:", error);
       throw error;
     }
   },
@@ -32,7 +31,7 @@ const CloudinaryModule = {
       });
       return uploadResult;
     } catch (error) {
-      logger.error("Error uploading video:", error);
+      console.error("Error uploading video:", error);
       throw error;
     }
   },
@@ -55,7 +54,7 @@ const CloudinaryModule = {
     });
   },
 
-  generateVideoUrl: (publicId: string, options?: object) => {
+  generateVideoUrl: (publicId: string, options?: any) => {
     return cloudinary.url(publicId, {
       resource_type: 'video',
       ...options
@@ -69,7 +68,7 @@ const CloudinaryModule = {
       });
       return result;
     } catch (error) {
-      logger.error(`Error deleting ${resourceType}:`, error);
+      console.error(`Error deleting ${resourceType}:`, error);
       throw error;
     }
   },

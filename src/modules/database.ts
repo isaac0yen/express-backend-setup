@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { Pool, createPool, PoolConnection } from "mysql2/promise";
 import { RowDataPacket, ResultSetHeader } from "mysql2";
-import { logger } from "./logger";
 
 let connection: Pool;
 
@@ -16,8 +15,9 @@ async function connect() {
             waitForConnections: true,
             connectionLimit: 10,
             queueLimit: 0,
+            timezone: '+00:00'
         });
-        logger.info('Database connection established');
+        console.log('Database connection established');
     }
 }
 

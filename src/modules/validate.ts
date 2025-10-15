@@ -1,14 +1,11 @@
-import { DateTime } from 'luxon';
-
 const Validate = {
-  isNumber: (value: unknown): boolean => {
+  isNumber: (value: any): boolean => {
     if (value === null || value === undefined || value === '') return false;
-    return typeof value === 'number' && !isNaN(value) && isFinite(value);
+    return !isNaN(value) && typeof value === 'number' && isFinite(value);
   },
 
-  isString: (value: unknown): boolean => {
-    if (value === null || value === undefined || value === '') return false;
-    if (typeof value === 'string' && value.length === 0) return false;
+  isString: (value: any): boolean => {
+    if (value === null || value === undefined || value === '' || value.length === 0) return false;
     return typeof value === 'string' || value instanceof String;
   },
 
@@ -28,22 +25,22 @@ const Validate = {
     return emailRegex.test(value);
   },
 
-  isBoolean: (value: unknown): boolean => {
+  isBoolean: (value: any): boolean => {
     if (value === null || value === undefined) return false;
     return typeof value === 'boolean';
   },
 
-  isArray: (value: unknown): boolean => {
+  isArray: (value: any): boolean => {
     if (value === null || value === undefined) return false;
     return Array.isArray(value);
   },
 
-  isObject: (value: unknown): boolean => {
+  isObject: (value: any): boolean => {
     if (value === null || value === undefined) return false;
     return typeof value === 'object' && !Array.isArray(value);
   },
 
-  isEmpty: (value: unknown): boolean => {
+  isEmpty: (value: any): boolean => {
     if (value === null || value === undefined) return true;
     if (typeof value === 'string') return value === '' || value.length === 0 || value.trim().length === 0;
     if (Array.isArray(value)) return value.length === 0;
@@ -51,11 +48,11 @@ const Validate = {
     return false;
   },
 
-  isDate: (value: unknown): boolean => {
+  isDate: (value: any): boolean => {
     if (!value) return false;
     try {
-      const dateTime = value instanceof Date ? DateTime.fromJSDate(value) : DateTime.fromISO(value as string);
-      return dateTime.isValid;
+      const date = value instanceof Date ? value : new Date(value);
+      return !isNaN(date.getTime());
     } catch {
       return false;
     }
@@ -65,9 +62,8 @@ const Validate = {
     if (value === null || value === undefined) return false;
     return value > 0;
   },
-  isEnum: (value: unknown, enumValues: unknown[]): boolean => {
-    if (value === null || value === undefined || value === '') return false;
-    if (typeof value === 'string' && value.length === 0) return false;
+  isEnum: (value: any, enumValues: any[]): boolean => {
+    if (value === null || value === undefined || value === '' || value.length === 0) return false;
     return enumValues.includes(value);
   }
 };

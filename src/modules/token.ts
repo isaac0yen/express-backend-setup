@@ -24,7 +24,7 @@ export const generateToken = (
 export const verifyToken = (token: string): TokenPayload => {
   try {
     return jwt.verify(token, JWT_SECRET) as TokenPayload;
-  } catch {
+  } catch (error) {
     throw new Error('Invalid token');
   }
 };
@@ -32,7 +32,7 @@ export const verifyToken = (token: string): TokenPayload => {
 export const decodeToken = (token: string): TokenPayload | null => {
   try {
     return jwt.decode(token) as TokenPayload;
-  } catch {
+  } catch (error) {
     return null;
   }
 };

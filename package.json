@@ -1,18 +1,17 @@
 {
   "name": "express-backend-setup",
-  "version": "2.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "3.0.0",
+  "main": "index.ts",
   "scripts": {
-    "dev": "tsc && node dist/index.js",
-    "build": "tsc && node scripts/build.js",
     "start": "node index.js",
-    "lint": "eslint . --ext .ts"
+    "build": "tsc && node script/build.js",
+    "dev": "ts-node-dev src/index.ts"
   },
+  "keywords": [],
   "author": "Oyeniyi Isaac",
   "license": "ISC",
+  "description": "",
   "dependencies": {
-    "@types/node-cron": "^3.0.11",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.6.1",
@@ -21,32 +20,28 @@
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.1.0",
+    "imap": "^0.8.19",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.7.1",
+    "mailparser": "^3.7.4",
     "mysql2": "^3.14.1",
-    "node-cron": "^4.2.1",
     "nodemailer": "^7.0.3",
-    "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
-    "@eslint/js": "^9.34.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.18",
     "@types/express": "^4.17.22",
+    "@types/imap": "^0.8.42",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/luxon": "^3.7.1",
+    "@types/mailparser": "^3.4.6",
     "@types/node": "^20.17.57",
-    "@types/swagger-ui-express": "^4.1.8",
     "@types/web-push": "^3.6.4",
-    "eslint": "^9.34.0",
-    "globals": "^16.3.0",
-    "jiti": "^2.5.1",
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.41.0"
+    "typescript": "^5.8.3"
   }
 }

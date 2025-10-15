@@ -6,7 +6,7 @@
 export const corsConfig = {
   // Approved URLs for production environment
   approvedUrls: [
-    '',
+    'https://example.com',
   ],
 
   // CORS options
@@ -33,11 +33,6 @@ export const corsConfig = {
 export const corsOriginHandler = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
   // Allow requests with no origin (like mobile apps, curl requests, Paystack webhooks, or same-origin requests)
   if (!origin) return callback(null, true);
-
-  // Allow Paystack webhook requests (they come from paystack.com domains)
-  if (origin.includes('paystack.com') || origin.includes('paystack.co')) {
-    return callback(null, true);
-  }
 
   if (process.env.NODE_ENV === 'production') {
     // In production, only allow approved URLs

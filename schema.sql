@@ -1,2 +1,0 @@
--- Complete Database Schema with Proper Indexing and Foreign Key Relationships
--- MySQL 8.0+ Compatible

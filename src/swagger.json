@@ -1,0 +1,4618 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "FUSE Varsity Backend API",
+    "description": "API documentation for FUSE Varsity Backend application",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT authorization header using the Bearer scheme. Example: 'Bearer {token}'"
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "example": "user@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "MALE",
+            "FEMALE",
+            "RATHER_NOT_SAY",
+            "NON_BINARY"
+          ],
+          "example": "MALE"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "ROLE",
+            "FACILITATOR",
+            "STUDENT",
+            "ADMIN",
+            "SUPER_ADMIN"
+          ],
+          "example": "STUDENT"
+        },
+        "country": {
+          "type": "string",
+          "example": "United States"
+        },
+        "profile_image": {
+          "type": "string",
+          "example": "https://example.com/images/profile.jpg"
+        },
+        "date_of_birth": {
+          "type": "string",
+          "format": "date",
+          "example": "1990-01-01"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2023-01-01T00:00:00.000Z"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2023-01-01T00:00:00.000Z"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": false
+        },
+        "message": {
+          "type": "string",
+          "example": "An error occurred"
+        },
+        "error": {
+          "type": "string",
+          "example": "Detailed error message"
+        }
+      }
+    },
+    "Success": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "message": {
+          "type": "string",
+          "example": "Operation completed successfully"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/": {
+      "get": {
+        "tags": [
+          "Root"
+        ],
+        "summary": "Welcome message",
+        "description": "Returns a welcome message for the API",
+        "responses": {
+          "200": {
+            "description": "Welcome message",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Welcome to the API!"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/change-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Change password",
+        "description": "Change password for authenticated user",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "currentPassword",
+                "newPassword"
+              ],
+              "properties": {
+                "currentPassword": {
+                  "type": "string",
+                  "example": "oldPassword123"
+                },
+                "newPassword": {
+                  "type": "string",
+                  "minLength": 6,
+                  "example": "newPassword456"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password changed successfully"
+          },
+          "400": {
+            "description": "Invalid current password"
+          },
+          "401": {
+            "description": "Unauthorized: No token provided or invalid token"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/account/forgot-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Request password reset",
+        "description": "Request password reset email",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "jane.smith@example.com"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset email sent"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/account/login": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Login user",
+        "description": "Login user with email and password",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email",
+                "password"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "jane.smith@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6,
+                  "example": "securePassword123"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful with auth token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "token": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                },
+                "user": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, validation errors"
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/account/logout": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Logout user",
+        "description": "Logout current user",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout successful"
+          },
+          "401": {
+            "description": "Unauthorized: No token provided or invalid token"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/account/reset-password": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Reset password",
+        "description": "Reset password with token",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "token",
+                "password"
+              ],
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "example": "abc123def456ghi789"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6,
+                  "example": "newPassword123"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset successful"
+          },
+          "400": {
+            "description": "Invalid or expired token"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/assessments": {
+      "post": {
+        "tags": [
+          "Assessments"
+        ],
+        "summary": "Create a new assessment",
+        "description": "Create a new assessment (quiz or assignment) for a topic. Facilitator access required.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "topic_id",
+                "title",
+                "type"
+              ],
+              "properties": {
+                "topic_id": {
+                  "type": "integer",
+                  "description": "ID of the topic this assessment belongs to"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Title of the assessment",
+                  "maxLength": 255
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "QUIZ",
+                    "ASSIGNMENT"
+                  ],
+                  "description": "Type of assessment"
+                },
+                "due_date": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Due date for the assessment (optional)"
+                },
+                "instructions": {
+                  "type": "string",
+                  "description": "Instructions for the assessment (optional)"
+                },
+                "quiz_questions": {
+                  "type": "array",
+                  "description": "Questions for quiz type assessments",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "question": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "multiple_choice",
+                          "true_false",
+                          "short_answer"
+                        ]
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 4
+                      },
+                      "correct_answer": {
+                        "type": "integer"
+                      },
+                      "points": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "time_limit": {
+                  "type": "integer",
+                  "description": "Time limit in minutes for quiz (optional)"
+                },
+                "max_attempts": {
+                  "type": "integer",
+                  "description": "Maximum number of attempts allowed (optional)"
+                },
+                "passing_score": {
+                  "type": "number",
+                  "description": "Minimum score required to pass (optional)"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Assessment created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "topic_id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "due_date": {
+                      "type": "string"
+                    },
+                    "instructions": {
+                      "type": "string"
+                    },
+                    "quiz_questions": {
+                      "type": "array"
+                    },
+                    "time_limit": {
+                      "type": "integer"
+                    },
+                    "max_attempts": {
+                      "type": "integer"
+                    },
+                    "passing_score": {
+                      "type": "number"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "errors": {
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Facilitator access required"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      }
+    },
+    "/api/assessments/{assessmentId}": {
+      "get": {
+        "tags": [
+          "Assessments"
+        ],
+        "summary": "Get a specific assessment",
+        "description": "Retrieve details of a specific assessment by ID. Available to both students and facilitators.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "assessmentId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the assessment to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessment retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "topic_id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "due_date": {
+                      "type": "string"
+                    },
+                    "instructions": {
+                      "type": "string"
+                    },
+                    "quiz_questions": {
+                      "type": "array"
+                    },
+                    "time_limit": {
+                      "type": "integer"
+                    },
+                    "max_attempts": {
+                      "type": "integer"
+                    },
+                    "passing_score": {
+                      "type": "number"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Assessment not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Assessments"
+        ],
+        "summary": "Update an assessment",
+        "description": "Update an existing assessment. Facilitator access required and must own the course.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "assessmentId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the assessment to update"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "QUIZ",
+                    "ASSIGNMENT"
+                  ]
+                },
+                "due_date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "instructions": {
+                  "type": "string"
+                },
+                "quiz_questions": {
+                  "type": "array"
+                },
+                "time_limit": {
+                  "type": "integer"
+                },
+                "max_attempts": {
+                  "type": "integer"
+                },
+                "passing_score": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessment updated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Facilitator access required or not course owner"
+          },
+          "404": {
+            "description": "Assessment not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Assessments"
+        ],
+        "summary": "Delete an assessment",
+        "description": "Delete an assessment and all associated submissions. Facilitator access required and must own the course.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "assessmentId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the assessment to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessment deleted successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Facilitator access required or not course owner"
+          },
+          "404": {
+            "description": "Assessment not found"
+          }
+        }
+      }
+    },
+    "/api/assessments/{assessmentId}/submit": {
+      "post": {
+        "tags": [
+          "Assessments"
+        ],
+        "summary": "Submit an assessment",
+        "description": "Submit answers for a quiz or assignment. Students only.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "assessmentId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the assessment to submit"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array",
+                  "description": "Array of answers for quiz questions or assignment submission",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "question_id": {
+                        "type": "integer"
+                      },
+                      "answer": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "submission_text": {
+                  "type": "string",
+                  "description": "Text submission for assignment type assessments"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Assessment submitted successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "submission_id": {
+                      "type": "integer"
+                    },
+                    "score": {
+                      "type": "number"
+                    },
+                    "total_points": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    },
+                    "passed": {
+                      "type": "boolean"
+                    },
+                    "submitted_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or submission not allowed"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Maximum attempts exceeded or not enrolled"
+          },
+          "404": {
+            "description": "Assessment not found"
+          }
+        }
+      }
+    },
+    "/api/assessments/topic/{topicId}": {
+      "get": {
+        "tags": [
+          "Assessments"
+        ],
+        "summary": "Get assessments by topic",
+        "description": "Retrieve all assessments for a specific topic. Available to both students and facilitators.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the topic to get assessments for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assessments retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "topic_id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "due_date": {
+                        "type": "string"
+                      },
+                      "instructions": {
+                        "type": "string"
+                      },
+                      "time_limit": {
+                        "type": "integer"
+                      },
+                      "max_attempts": {
+                        "type": "integer"
+                      },
+                      "passing_score": {
+                        "type": "number"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "updated_at": {
+                        "type": "string"
+                      },
+                      "user_status": {
+                        "type": "object",
+                        "properties": {
+                          "completed": {
+                            "type": "boolean",
+                            "description": "Whether user has submitted this assessment"
+                          },
+                          "attempts_made": {
+                            "type": "integer",
+                            "description": "Number of attempts made by user"
+                          },
+                          "max_attempts": {
+                            "type": "integer",
+                            "description": "Maximum attempts allowed"
+                          },
+                          "can_attempt": {
+                            "type": "boolean",
+                            "description": "Whether user can make another attempt"
+                          },
+                          "latest_grade": {
+                            "type": "number",
+                            "description": "Grade from latest submission"
+                          },
+                          "latest_status": {
+                            "type": "string",
+                            "description": "Status of latest submission"
+                          },
+                          "passed": {
+                            "type": "boolean",
+                            "description": "Whether user passed the assessment"
+                          },
+                          "submitted_at": {
+                            "type": "string",
+                            "description": "Timestamp of latest submission"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      }
+    },
+    "/api/courses": {
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Create a new course",
+        "description": "Create a new course. Only facilitators can create courses.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "title",
+                "description",
+                "course_type"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 200,
+                  "description": "Course title",
+                  "example": "Introduction to Web Development"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 10,
+                  "maxLength": 1000,
+                  "description": "Course description",
+                  "example": "Learn the fundamentals of web development including HTML, CSS, and JavaScript"
+                },
+                "course_type": {
+                  "type": "string",
+                  "enum": [
+                    "LIVE",
+                    "RECORDED"
+                  ],
+                  "description": "Type of course",
+                  "example": "RECORDED"
+                },
+                "price": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Course price (optional, defaults to 0)",
+                  "example": 99.99
+                },
+                "thumbnail": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Course thumbnail URL (optional)",
+                  "example": "https://example.com/thumbnail.jpg"
+                },
+                "total_topics": {
+                  "type": "integer",
+                  "description": "Total number of topics in the course",
+                  "example": 10
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Course created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Facilitator role required"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Get all courses",
+        "description": "Retrieve all courses created by the authenticated facilitator with optional pagination.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Courses retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Courses retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Course"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Facilitator role required"
+          }
+        }
+      }
+    },
+    "/api/courses/{courseId}": {
+      "get": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Get a specific course",
+        "description": "Retrieve details of a specific course by ID. Only facilitators can access their own courses.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course retrieved successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Facilitator role required or not course owner"
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Update a course (full update)",
+        "description": "Update all fields of a course. Only the course owner can update their course.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "title",
+                "description",
+                "course_type"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 200,
+                  "description": "Course title",
+                  "example": "Updated Course Title"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 10,
+                  "maxLength": 1000,
+                  "description": "Course description",
+                  "example": "Updated course description with more details"
+                },
+                "course_type": {
+                  "type": "string",
+                  "enum": [
+                    "LIVE",
+                    "RECORDED"
+                  ],
+                  "description": "Type of course",
+                  "example": "LIVE"
+                },
+                "price": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Course price",
+                  "example": 149.99
+                },
+                "thumbnail": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Course thumbnail URL",
+                  "example": "https://example.com/updated-thumbnail.jpg"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course updated successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Update a course (partial update)",
+        "description": "Update specific fields of a course. Only the course owner can update their course.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 200,
+                  "description": "Course title",
+                  "example": "Partially Updated Title"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 10,
+                  "maxLength": 1000,
+                  "description": "Course description",
+                  "example": "Partially updated description"
+                },
+                "course_type": {
+                  "type": "string",
+                  "enum": [
+                    "LIVE",
+                    "RECORDED"
+                  ],
+                  "description": "Type of course",
+                  "example": "RECORDED"
+                },
+                "price": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Course price",
+                  "example": 99.99
+                },
+                "thumbnail": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Course thumbnail URL",
+                  "example": "https://example.com/new-thumbnail.jpg"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course updated successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Delete a course",
+        "description": "Delete a course and all its associated topics. Only the course owner can delete their course.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course deleted successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      }
+    },
+    "/api/courses/{courseId}/topics": {
+      "post": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Create a new topic",
+        "description": "Create a new topic for a course. Only the course owner can create topics.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "title",
+                "content"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 200,
+                  "description": "Topic title",
+                  "example": "Introduction to Variables"
+                },
+                "content": {
+                  "type": "string",
+                  "minLength": 10,
+                  "maxLength": 5000,
+                  "description": "Topic content",
+                  "example": "In this topic, we'll learn about variables and how to use them in programming."
+                },
+                "order_index": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Order index for topic sequence",
+                  "example": 1
+                },
+                "resources": {
+                  "type": "array",
+                  "description": "Array of resource URLs",
+                  "items": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "example": {
+                    "VIDEO": "https://example.com/video1.mp4",
+                    "IMAGE": "https://example.com/document.pdf"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Topic created successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Get all topics for a course",
+        "description": "Retrieve all topics for a specific course with optional pagination.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "description": "Course ID",
+            "type": "integer"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number for pagination",
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Number of topics per page",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Topics retrieved successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Course not found"
+          }
+        }
+      }
+    },
+    "/api/courses/topics/{topicId}": {
+      "get": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Get a specific topic",
+        "description": "Retrieve details of a specific topic by ID. Only the course owner can access topics.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "description": "Topic ID",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Topic retrieved successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Update a topic (full update)",
+        "description": "Update all fields of a topic. Only the course owner can update topics.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "description": "Topic ID",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "title",
+                "content"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 200,
+                  "description": "Topic title",
+                  "example": "Updated Topic Title"
+                },
+                "content": {
+                  "type": "string",
+                  "minLength": 10,
+                  "maxLength": 5000,
+                  "description": "Topic content",
+                  "example": "Updated topic content with more comprehensive information."
+                },
+                "order_index": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Order index for topic sequence",
+                  "example": 2
+                },
+                "resources": {
+                  "type": "array",
+                  "description": "Array of resource URLs",
+                  "items": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "example": {
+                    "VIDEO": "https://example.com/video1.mp4",
+                    "IMAGE": "https://example.com/document.pdf"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Topic updated successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Update a topic (partial update)",
+        "description": "Update specific fields of a topic. Only the course owner can update topics.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "description": "Topic ID",
+            "type": "integer"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 200,
+                  "description": "Topic title",
+                  "example": "Partially Updated Topic"
+                },
+                "content": {
+                  "type": "string",
+                  "minLength": 10,
+                  "maxLength": 5000,
+                  "description": "Topic content",
+                  "example": "Partially updated topic content."
+                },
+                "order_index": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Order index for topic sequence",
+                  "example": 3
+                },
+                "resources": {
+                  "type": "array",
+                  "description": "Array of resource URLs",
+                  "items": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "example": {
+                    "VIDEO": "https://example.com/video1.mp4",
+                    "IMAGE": "https://example.com/document.pdf"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Topic updated successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Topics"
+        ],
+        "summary": "Delete a topic",
+        "description": "Delete a topic from a course. Only the course owner can delete topics.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "description": "Topic ID",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Topic deleted successfully",
+            "schema": {
+              "$ref": "#/definitions/Success"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Not course owner"
+          },
+          "404": {
+            "description": "Topic not found"
+          }
+        }
+      }
+    },
+    "/api/courses/topics/{topicId}/complete": {
+      "post": {
+        "tags": [
+          "Courses"
+        ],
+        "summary": "Mark topic as complete",
+        "description": "Mark a topic as completed. Automatically validates if all required assessments are completed and passed before allowing completion.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the topic to mark as complete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Topic marked as complete successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "topic_id": {
+                      "type": "integer"
+                    },
+                    "completed_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "assessments_required": {
+                      "type": "boolean"
+                    },
+                    "assessments_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Topic already completed or assessments not passed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "assessments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          },
+                          "best_grade": {
+                            "type": "number"
+                          },
+                          "passing_score": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "incomplete_assessments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - User not enrolled in course"
+          },
+          "404": {
+            "description": "Topic not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/cv": {
+      "get": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Get user's complete CV",
+        "description": "Retrieves the user's complete CV data in the template format including personal info, experience, education, skills, projects, awards, certifications, and languages.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CV retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "CV retrieved successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CVTemplate"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "CV profile not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Create or update complete CV",
+        "description": "Creates a new CV or updates an existing CV with complete data including personal info, experience, education, skills, projects, awards, certifications, and languages.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "personalInfo": {
+                    "$ref": "#/components/schemas/PersonalInfo"
+                  },
+                  "summary": {
+                    "type": "string",
+                    "example": "Experienced software engineer with 5+ years in full-stack development."
+                  },
+                  "experience": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Experience"
+                    }
+                  },
+                  "education": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Education"
+                    }
+                  },
+                  "skills": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SkillGroup"
+                    }
+                  },
+                  "projects": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Project"
+                    }
+                  },
+                  "awards": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Award"
+                    }
+                  },
+                  "certifications": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Certification"
+                    }
+                  },
+                  "languages": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Language"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CV updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "CV updated successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "cv_profile_id": {
+                          "type": "number",
+                          "example": 123
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Must complete at least one course"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Delete user's CV profile",
+        "description": "Deletes the user's CV profile and all related data including experience, education, skills, projects, awards, certifications, and languages.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CV profile deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "CV profile deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "CV profile not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/cv/awards": {
+      "post": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Add award to CV",
+        "description": "Adds a new award to the user's CV profile.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Hackathon Winner"
+                  },
+                  "issuer": {
+                    "type": "string",
+                    "example": "Event X"
+                  },
+                  "year": {
+                    "type": "string",
+                    "example": "2023"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "First place in national coding competition"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Award added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Award added successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Award"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required fields"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "CV profile not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/cv/certifications": {
+      "post": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Add certification to CV",
+        "description": "Adds a new certification to the user's CV profile.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "AWS Certified Cloud Practitioner"
+                  },
+                  "issuer": {
+                    "type": "string",
+                    "example": "AWS"
+                  },
+                  "year": {
+                    "type": "string",
+                    "example": "2024"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Foundational understanding of AWS Cloud"
+                  },
+                  "url": {
+                    "type": "string",
+                    "example": "https://aws.amazon.com/certification/"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Certification added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Certification added successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Certification"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required fields"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "CV profile not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/cv/completed-courses": {
+      "get": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Get completed courses for CV reference",
+        "description": "Retrieves all courses completed by the user that can be referenced in their CV.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Completed courses retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Completed courses retrieved successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "course_id": {
+                            "type": "number",
+                            "example": 1
+                          },
+                          "title": {
+                            "type": "string",
+                            "example": "Full Stack Web Development"
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": "Complete course on modern web development"
+                          },
+                          "course_type": {
+                            "type": "string",
+                            "enum": [
+                              "LIVE",
+                              "RECORDED"
+                            ],
+                            "example": "RECORDED"
+                          },
+                          "enrollment_date": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2024-01-15T10:30:00Z"
+                          },
+                          "completed_topics": {
+                            "type": "number",
+                            "example": 12
+                          },
+                          "total_topics": {
+                            "type": "number",
+                            "example": 12
+                          },
+                          "is_completed": {
+                            "type": "boolean",
+                            "example": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/cv/languages": {
+      "post": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Add language to CV",
+        "description": "Adds a new language to the user's CV profile.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "level"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "English"
+                  },
+                  "level": {
+                    "type": "string",
+                    "enum": [
+                      "Beginner",
+                      "Conversational",
+                      "Fluent",
+                      "Native"
+                    ],
+                    "example": "Fluent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Language added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Language added successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Language"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required fields or invalid level"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "CV profile not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/cv/projects": {
+      "post": {
+        "tags": [
+          "CV"
+        ],
+        "summary": "Add project to CV",
+        "description": "Adds a new project to the user's CV profile.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "E-commerce API"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Modular service for catalog, cart, and checkout."
+                  },
+                  "tools": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "Node.js",
+                      "PostgreSQL",
+                      "Redis"
+                    ]
+                  },
+                  "impact": {
+                    "type": "string",
+                    "example": "Handled 1k RPS with <120ms p95 latency."
+                  },
+                  "url": {
+                    "type": "string",
+                    "example": "https://github.com/username/project"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Project added successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Project"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing required fields"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "CV profile not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/enroll/initiate": {
+      "post": {
+        "tags": [
+          "Enrollment"
+        ],
+        "summary": "Initiate course enrollment",
+        "description": "Initiate enrollment in a course. Handles both free courses (instant enrollment) and paid courses (Paystack payment).",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "courseId"
+              ],
+              "properties": {
+                "courseId": {
+                  "type": "integer",
+                  "description": "ID of the course to enroll in",
+                  "example": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment initiated successfully (for paid courses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "paymentUrl": {
+                      "type": "string"
+                    },
+                    "reference": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "number"
+                    },
+                    "course_title": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Successfully enrolled in free course",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "enrollment_id": {
+                      "type": "integer"
+                    },
+                    "transaction_reference": {
+                      "type": "string"
+                    },
+                    "course_title": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid course ID or already enrolled"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Course not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/enroll/webhook": {
+      "post": {
+        "tags": [
+          "Enrollment"
+        ],
+        "summary": "Paystack webhook handler",
+        "description": "Handles Paystack payment confirmation webhooks. This endpoint is called by Paystack when payment status changes.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "description": "Paystack webhook payload"
+            }
+          },
+          {
+            "name": "x-paystack-signature",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Paystack signature for webhook verification"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing or invalid signature"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/enroll/check/{courseId}": {
+      "get": {
+        "tags": [
+          "Enrollment"
+        ],
+        "summary": "Check enrollment status",
+        "description": "Check if the authenticated user is enrolled in a specific course.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the course to check enrollment for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enrollment status retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "enrolled": {
+                      "type": "boolean"
+                    },
+                    "enrollment_date": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid course ID"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/enroll/my-enrollments": {
+      "get": {
+        "tags": [
+          "Enrollment"
+        ],
+        "summary": "Get user's enrollments",
+        "description": "Retrieve all courses the authenticated user is enrolled in.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enrollments retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "enrollment_id": {
+                        "type": "integer"
+                      },
+                      "enrollment_date": {
+                        "type": "string"
+                      },
+                      "transaction_reference": {
+                        "type": "string"
+                      },
+                      "course_id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "image_url": {
+                        "type": "string"
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "rating": {
+                        "type": "number"
+                      },
+                      "course_type": {
+                        "type": "string"
+                      },
+                      "total_topics": {
+                        "type": "integer"
+                      },
+                      "transaction_status": {
+                        "type": "string"
+                      },
+                      "amount": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/media/profile-picture": {
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Update profile picture",
+        "description": "Update user's profile picture",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "base64string",
+                "fileName"
+              ],
+              "properties": {
+                "base64string": {
+                  "type": "string",
+                  "example": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+Wq/Z"
+                },
+                "fileName": {
+                  "type": "string",
+                  "example": "profile_picture.jpg"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile picture updated successfully"
+          },
+          "400": {
+            "description": "Bad request, validation errors"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Create a notification",
+        "description": "Create a new notification to send to students. Facilitator access required.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "title",
+                "message",
+                "recipient_type"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "Title of the notification",
+                  "maxLength": 255
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Content of the notification"
+                },
+                "recipient_type": {
+                  "type": "string",
+                  "enum": [
+                    "ALL_STUDENTS",
+                    "COURSE_STUDENTS",
+                    "SPECIFIC_STUDENT"
+                  ],
+                  "description": "Type of recipients for the notification"
+                },
+                "course_id": {
+                  "type": "integer",
+                  "description": "Course ID (required if recipient_type is COURSE_STUDENTS)"
+                },
+                "recipient_id": {
+                  "type": "integer",
+                  "description": "Specific student ID (required if recipient_type is SPECIFIC_STUDENT)"
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": [
+                    "LOW",
+                    "MEDIUM",
+                    "HIGH"
+                  ],
+                  "description": "Priority level of the notification",
+                  "default": "MEDIUM"
+                },
+                "scheduled_for": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Schedule notification for later (optional)"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Notification created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "recipient_type": {
+                      "type": "string"
+                    },
+                    "priority": {
+                      "type": "string"
+                    },
+                    "created_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Facilitator access required"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Get user notifications",
+        "description": "Retrieve notifications for the authenticated user with pagination support.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "description": "Page number for pagination",
+            "default": 1
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "description": "Number of notifications per page",
+            "default": 20,
+            "maximum": 100
+          },
+          {
+            "name": "unread_only",
+            "in": "query",
+            "type": "boolean",
+            "description": "Filter to show only unread notifications",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifications retrieved successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "priority": {
+                        "type": "string"
+                      },
+                      "is_read": {
+                        "type": "boolean"
+                      },
+                      "created_at": {
+                        "type": "string"
+                      },
+                      "read_at": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "current_page": {
+                      "type": "integer"
+                    },
+                    "total_pages": {
+                      "type": "integer"
+                    },
+                    "total_count": {
+                      "type": "integer"
+                    },
+                    "has_next": {
+                      "type": "boolean"
+                    },
+                    "has_prev": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          }
+        }
+      }
+    },
+    "/api/notifications/mark-all-read": {
+      "put": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark all notifications as read",
+        "description": "Mark all notifications as read for the authenticated user.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All notifications marked as read successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "updated_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          }
+        }
+      }
+    },
+    "/api/notifications/{notificationId}": {
+      "put": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark notification as read",
+        "description": "Mark a specific notification as read for the authenticated user.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the notification to mark as read"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked as read successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Delete a notification",
+        "description": "Delete a notification. Facilitators can delete any notification they created, users can delete their own notification records.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID of the notification to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token"
+          },
+          "403": {
+            "description": "Forbidden - Cannot delete this notification"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        }
+      }
+    },
+    "/api/users/admin-get-all": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all users",
+        "description": "Get all users in the system",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of user objects",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "STUDENT"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: No token provided or invalid token"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/users/create": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create new user",
+        "description": "Create a new user with email, password, first_name, last_name, gender, role, country, profile_image, and date_of_birth",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "email",
+                "password",
+                "first_name",
+                "last_name",
+                "gender",
+                "role",
+                "country",
+                "date_of_birth"
+              ],
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "jane.smith@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6,
+                  "example": "securePassword123"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "Jane"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "Smith"
+                },
+                "gender": {
+                  "type": "string",
+                  "enum": [
+                    "MALE",
+                    "FEMALE",
+                    "RATHER_NOT_SAY",
+                    "NON_BINARY"
+                  ],
+                  "example": "FEMALE"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "ROLE",
+                    "FACILITATOR",
+                    "STUDENT",
+                    "ADMIN",
+                    "SUPER_ADMIN"
+                  ],
+                  "example": "STUDENT"
+                },
+                "country": {
+                  "type": "string",
+                  "example": "United States"
+                },
+                "profile_image": {
+                  "type": "string",
+                  "example": "https://example.com/images/profile.jpg"
+                },
+                "date_of_birth": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "1995-08-15"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully"
+          },
+          "400": {
+            "description": "Bad request, validation errors"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user profile",
+        "description": "Get authenticated user's profile",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile data",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "email": {
+                  "type": "string",
+                  "example": "jane.smith@example.com"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "John"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "Doe"
+                },
+                "gender": {
+                  "type": "string",
+                  "example": "MALE"
+                },
+                "role": {
+                  "type": "string",
+                  "example": "STUDENT"
+                },
+                "country": {
+                  "type": "string",
+                  "example": "United States"
+                },
+                "profile_image": {
+                  "type": "string",
+                  "example": "https://example.com/images/profile.jpg"
+                },
+                "date_of_birth": {
+                  "type": "string",
+                  "example": "1990-01-01"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized: No token provided or invalid token"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/users/update": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user profile",
+        "description": "Update authenticated user's profile",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "example": "updated.email@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6,
+                  "example": "newPassword123"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "UpdatedFirstName"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "UpdatedLastName"
+                },
+                "gender": {
+                  "type": "string",
+                  "enum": [
+                    "MALE",
+                    "FEMALE",
+                    "RATHER_NOT_SAY",
+                    "NON_BINARY"
+                  ],
+                  "example": "MALE"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "ROLE",
+                    "FACILITATOR",
+                    "STUDENT",
+                    "ADMIN",
+                    "SUPER_ADMIN"
+                  ],
+                  "example": "FACILITATOR"
+                },
+                "country": {
+                  "type": "string",
+                  "example": "Canada"
+                },
+                "profile_image": {
+                  "type": "string",
+                  "example": "https://example.com/images/updated_profile.jpg"
+                },
+                "date_of_birth": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "1992-03-20"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User updated successfully"
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "updated.email@example.com"
+                    },
+                    "first_name": {
+                      "type": "string",
+                      "example": "UpdatedFirstName"
+                    },
+                    "last_name": {
+                      "type": "string",
+                      "example": "UpdatedLastName"
+                    },
+                    "gender": {
+                      "type": "string",
+                      "example": "MALE"
+                    },
+                    "role": {
+                      "type": "string",
+                      "example": "FACILITATOR"
+                    },
+                    "country": {
+                      "type": "string",
+                      "example": "Canada"
+                    },
+                    "profile_image": {
+                      "type": "string",
+                      "example": "https://example.com/images/updated_profile.jpg"
+                    },
+                    "date_of_birth": {
+                      "type": "string",
+                      "example": "1992-03-20"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, validation errors"
+          },
+          "401": {
+            "description": "Unauthorized: No token provided or invalid token"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/api/videos/{bunny_video_id}/info": {
+      "get": {
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Get video information and metadata",
+        "description": "Retrieve detailed information about a video including Bunny CDN metadata, local course information, and user access details. User must be authenticated and have access to the course.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bunny_video_id",
+            "in": "path",
+            "required": true,
+            "description": "Bunny CDN video ID (GUID)",
+            "type": "string",
+            "example": "cf1a95a4-88b4-4c01-a71c-1994029686dc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Video information retrieved successfully",
+            "schema": {
+              "$ref": "#/components/schemas/VideoInfoResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": true,
+                "message": "Video information retrieved successfully",
+                "data": {
+                  "video_id": "cf1a95a4-88b4-4c01-a71c-1994029686dc",
+                  "topic_id": 123,
+                  "course_id": 456,
+                  "bunny_info": {
+                    "title": "Introduction to React",
+                    "status": 4,
+                    "duration": 1800,
+                    "size": 157286400,
+                    "created": "2025-01-15T10:00:00Z",
+                    "views": 25
+                  },
+                  "local_info": {
+                    "topic_title": "Introduction to React",
+                    "course_title": "React Masterclass",
+                    "topic_order": 1
+                  },
+                  "access_info": {
+                    "is_owner": false,
+                    "is_enrolled": true,
+                    "enrollment_date": "2025-01-15T10:30:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": false,
+                "message": "Unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User must be enrolled in the course or be the course owner",
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": false,
+                "message": "You must be enrolled in this course to access its videos"
+              }
+            }
+          },
+          "404": {
+            "description": "Video not found",
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": false,
+                "message": "Video not found"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/videos/{bunny_video_id}/stream": {
+      "get": {
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Get secure video streaming URL",
+        "description": "Retrieve secure streaming URLs for a video. User must be authenticated and have access to the course (either as owner or enrolled student). Returns multiple URL formats for different use cases.",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bunny_video_id",
+            "in": "path",
+            "required": true,
+            "description": "Bunny CDN video ID (GUID)",
+            "type": "string",
+            "example": "cf1a95a4-88b4-4c01-a71c-1994029686dc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Video stream URLs retrieved successfully",
+            "schema": {
+              "$ref": "#/components/schemas/VideoStreamResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": true,
+                "message": "Video stream URL retrieved successfully",
+                "data": {
+                  "video_id": "cf1a95a4-88b4-4c01-a71c-1994029686dc",
+                  "topic_id": 123,
+                  "course_id": 456,
+                  "urls": {
+                    "embed": "https://iframe.mediadelivery.net/embed/485251/cf1a95a4-88b4-4c01-a71c-1994029686dc",
+                    "hls": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/playlist.m3u8",
+                    "direct": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/play"
+                  },
+                  "video_info": {
+                    "title": "Introduction to React",
+                    "course_title": "React Masterclass",
+                    "duration": null,
+                    "thumbnail": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/thumbnail.jpg"
+                  },
+                  "access_info": {
+                    "is_owner": false,
+                    "is_enrolled": true,
+                    "enrollment_date": "2025-01-15T10:30:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": false,
+                "message": "Unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User must be enrolled in the course or be the course owner",
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": false,
+                "message": "You must be enrolled in this course to access its videos"
+              }
+            }
+          },
+          "404": {
+            "description": "Video not found",
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": false,
+                "message": "Video not found"
+              }
+            }
+          },
+          "503": {
+            "description": "Video streaming service temporarily unavailable",
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "status": false,
+                "message": "Video streaming service temporarily unavailable"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Course": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Course ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "Course title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Course description"
+          },
+          "course_type": {
+            "type": "string",
+            "enum": [
+              "LIVE",
+              "RECORDED"
+            ],
+            "description": "Type of course"
+          },
+          "price": {
+            "type": "number",
+            "description": "Course price"
+          },
+          "thumbnail": {
+            "type": "string",
+            "format": "uri",
+            "description": "Course thumbnail URL"
+          },
+          "total_topics": {
+            "type": "integer",
+            "description": "Total number of topics in the course"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5,
+            "description": "Course rating"
+          },
+          "created_by": {
+            "type": "integer",
+            "description": "ID of the facilitator who created the course"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Course creation timestamp"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Course last update timestamp"
+          }
+        }
+      },
+      "Topic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Topic ID"
+          },
+          "course_id": {
+            "type": "integer",
+            "description": "ID of the course this topic belongs to"
+          },
+          "title": {
+            "type": "string",
+            "description": "Topic title"
+          },
+          "content": {
+            "type": "string",
+            "description": "Topic content"
+          },
+          "order_index": {
+            "type": "integer",
+            "description": "Order of the topic within the course"
+          },
+          "bunny_video_id": {
+            "type": "string",
+            "description": "Bunny CDN video ID (GUID) for streaming",
+            "example": "cf1a95a4-88b4-4c01-a71c-1994029686dc"
+          },
+          "video_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Bunny CDN video playback URL",
+            "example": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/play"
+          },
+          "resources": {
+            "type": "object",
+            "description": "Topic resources as key-value pairs",
+            "properties": {
+              "VIDEO": {
+                "type": "string",
+                "format": "uri",
+                "description": "Video resource URL (Bunny CDN)"
+              },
+              "DOCUMENT": {
+                "type": "string",
+                "format": "uri",
+                "description": "Document resource URL"
+              },
+              "LINK": {
+                "type": "string",
+                "format": "uri",
+                "description": "External link resource"
+              },
+              "AUDIO": {
+                "type": "string",
+                "format": "uri",
+                "description": "Audio resource URL"
+              }
+            },
+            "example": {
+              "VIDEO": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/play",
+              "DOCUMENT": "https://example.com/course-notes.pdf"
+            }
+          },
+          "progress": {
+            "type": "object",
+            "description": "User progress for this topic",
+            "properties": {
+              "completed": {
+                "type": "boolean",
+                "description": "Whether the topic is completed"
+              },
+              "completed_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Completion timestamp"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Topic creation timestamp"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Topic last update timestamp"
+          }
+        }
+      },
+      "CourseResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Course retrieved successfully"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Course"
+          }
+        }
+      },
+      "TopicResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Topic retrieved successfully"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Topic"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "currentPage": {
+            "type": "integer",
+            "description": "Current page number"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages"
+          },
+          "totalItems": {
+            "type": "integer",
+            "description": "Total number of items"
+          },
+          "itemsPerPage": {
+            "type": "integer",
+            "description": "Number of items per page"
+          }
+        }
+      },
+      "VideoStreamResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Video stream URL retrieved successfully"
+          },
+          "data": {
+            "$ref": "#/components/schemas/VideoStreamData"
+          }
+        }
+      },
+      "VideoStreamData": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "Bunny CDN video ID",
+            "example": "cf1a95a4-88b4-4c01-a71c-1994029686dc"
+          },
+          "topic_id": {
+            "type": "integer",
+            "description": "Topic ID containing this video",
+            "example": 123
+          },
+          "course_id": {
+            "type": "integer",
+            "description": "Course ID containing this video",
+            "example": 456
+          },
+          "urls": {
+            "$ref": "#/components/schemas/VideoUrls"
+          },
+          "video_info": {
+            "$ref": "#/components/schemas/VideoInfo"
+          },
+          "access_info": {
+            "$ref": "#/components/schemas/VideoAccessInfo"
+          }
+        }
+      },
+      "VideoUrls": {
+        "type": "object",
+        "properties": {
+          "embed": {
+            "type": "string",
+            "format": "uri",
+            "description": "Secure iframe embed URL (recommended)",
+            "example": "https://iframe.mediadelivery.net/embed/485251/cf1a95a4-88b4-4c01-a71c-1994029686dc"
+          },
+          "hls": {
+            "type": "string",
+            "format": "uri",
+            "description": "HLS streaming URL for custom players",
+            "example": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/playlist.m3u8"
+          },
+          "direct": {
+            "type": "string",
+            "format": "uri",
+            "description": "Direct CDN URL (less secure)",
+            "example": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/play"
+          }
+        }
+      },
+      "VideoInfo": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Video title",
+            "example": "Introduction to React"
+          },
+          "course_title": {
+            "type": "string",
+            "description": "Course title",
+            "example": "React Masterclass"
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Video duration in seconds",
+            "example": 1800
+          },
+          "thumbnail": {
+            "type": "string",
+            "format": "uri",
+            "description": "Video thumbnail URL",
+            "example": "https://vz-b0b8034e-054.b-cdn.net/cf1a95a4-88b4-4c01-a71c-1994029686dc/thumbnail.jpg"
+          }
+        }
+      },
+      "VideoAccessInfo": {
+        "type": "object",
+        "properties": {
+          "is_owner": {
+            "type": "boolean",
+            "description": "Whether the user owns the course",
+            "example": false
+          },
+          "is_enrolled": {
+            "type": "boolean",
+            "description": "Whether the user is enrolled in the course",
+            "example": true
+          },
+          "enrollment_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when user enrolled in the course",
+            "example": "2025-01-15T10:30:00Z"
+          }
+        }
+      },
+      "VideoInfoResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Video information retrieved successfully"
+          },
+          "data": {
+            "$ref": "#/components/schemas/VideoInfoData"
+          }
+        }
+      },
+      "VideoInfoData": {
+        "type": "object",
+        "properties": {
+          "video_id": {
+            "type": "string",
+            "description": "Bunny CDN video ID",
+            "example": "cf1a95a4-88b4-4c01-a71c-1994029686dc"
+          },
+          "topic_id": {
+            "type": "integer",
+            "description": "Topic ID containing this video",
+            "example": 123
+          },
+          "course_id": {
+            "type": "integer",
+            "description": "Course ID containing this video",
+            "example": 456
+          },
+          "bunny_info": {
+            "$ref": "#/components/schemas/BunnyVideoInfo"
+          },
+          "local_info": {
+            "$ref": "#/components/schemas/LocalVideoInfo"
+          },
+          "access_info": {
+            "$ref": "#/components/schemas/VideoAccessInfo"
+          }
+        }
+      },
+      "BunnyVideoInfo": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Video title in Bunny CDN",
+            "example": "Introduction to React"
+          },
+          "status": {
+            "type": "integer",
+            "description": "Video processing status (4 = Ready)",
+            "example": 4
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Video duration in seconds",
+            "example": 1800
+          },
+          "size": {
+            "type": "integer",
+            "description": "Video file size in bytes",
+            "example": 157286400
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Video creation date in Bunny CDN",
+            "example": "2025-01-15T10:00:00Z"
+          },
+          "views": {
+            "type": "integer",
+            "description": "Number of video views",
+            "example": 25
+          }
+        }
+      },
+      "LocalVideoInfo": {
+        "type": "object",
+        "properties": {
+          "topic_title": {
+            "type": "string",
+            "description": "Topic title",
+            "example": "Introduction to React"
+          },
+          "course_title": {
+            "type": "string",
+            "description": "Course title",
+            "example": "React Masterclass"
+          },
+          "topic_order": {
+            "type": "integer",
+            "description": "Topic order within the course",
+            "example": 1
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of validation errors (optional)"
+          }
+        }
+      },
+      "CVTemplate": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "type": "string",
+            "example": "classic"
+          },
+          "personalInfo": {
+            "$ref": "#/components/schemas/PersonalInfo"
+          },
+          "summary": {
+            "type": "string",
+            "example": "Short professional summary highlighting strengths, stack, and outcomes delivered."
+          },
+          "experience": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Experience"
+            }
+          },
+          "education": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Education"
+            }
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillGroup"
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Project"
+            }
+          },
+          "awards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Award"
+            }
+          },
+          "certifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Certification"
+            }
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Language"
+            }
+          }
+        }
+      },
+      "PersonalInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "title": {
+            "type": "string",
+            "example": "Software Engineer"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+234 000 000 0000"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@example.com"
+          },
+          "location": {
+            "type": "string",
+            "example": "Lagos, NG"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "LinkedIn"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://linkedin.com/in/username"
+          }
+        }
+      },
+      "Experience": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Software Engineer"
+          },
+          "company": {
+            "type": "string",
+            "example": "Company A"
+          },
+          "location": {
+            "type": "string",
+            "example": "Remote"
+          },
+          "start": {
+            "type": "string",
+            "example": "2022-01"
+          },
+          "end": {
+            "type": "string",
+            "example": "Present"
+          },
+          "bullets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Reduced API latency by 35% through query optimization and caching.",
+              "Built secure payments feature integrating Paystack and Stripe."
+            ]
+          }
+        }
+      },
+      "Education": {
+        "type": "object",
+        "properties": {
+          "degree": {
+            "type": "string",
+            "example": "B.Sc. Computer Science"
+          },
+          "institution": {
+            "type": "string",
+            "example": "University Name"
+          },
+          "year": {
+            "type": "string",
+            "example": "2020"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Second Class Upper",
+              "Relevant Coursework: Algorithms, DBMS"
+            ]
+          }
+        }
+      },
+      "SkillGroup": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "Languages"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "TypeScript",
+              "JavaScript",
+              "Python"
+            ]
+          }
+        }
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "E-commerce API"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Node.js",
+              "PostgreSQL",
+              "Redis"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "example": "Modular service for catalog, cart, and checkout."
+          },
+          "impact": {
+            "type": "string",
+            "example": "Handled 1k RPS with <120ms p95 latency."
+          }
+        }
+      },
+      "Award": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Hackathon Winner"
+          },
+          "issuer": {
+            "type": "string",
+            "example": "Event X"
+          },
+          "year": {
+            "type": "string",
+            "example": "2023"
+          }
+        }
+      },
+      "Certification": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "AWS Certified Cloud Practitioner"
+          },
+          "issuer": {
+            "type": "string",
+            "example": "AWS"
+          },
+          "year": {
+            "type": "string",
+            "example": "2024"
+          }
+        }
+      },
+      "Language": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "English"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "Beginner",
+              "Conversational",
+              "Fluent",
+              "Native"
+            ],
+            "example": "Fluent"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token for authentication. Include the token in the Authorization header as 'Bearer <token>'"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Root",
+      "description": "Root endpoint"
+    },
+    {
+      "name": "Account",
+      "description": "Account management operations"
+    },
+    {
+      "name": "Media",
+      "description": "Media upload and management operations"
+    },
+    {
+      "name": "Users",
+      "description": "User management operations"
+    },
+    {
+      "name": "Courses",
+      "description": "Course management operations for facilitators"
+    },
+    {
+      "name": "Topics",
+      "description": "Topic management operations within courses"
+    },
+    {
+      "name": "Assessments",
+      "description": "Assessment and quiz management operations"
+    },
+    {
+      "name": "Notifications",
+      "description": "Notification management and delivery operations"
+    },
+    {
+      "name": "Enrollment",
+      "description": "Course enrollment and payment operations"
+    },
+    {
+      "name": "Videos",
+      "description": "Video streaming and management operations using Bunny CDN"
+    },
+    {
+      "name": "CV",
+      "description": "CV (Curriculum Vitae) management operations for creating and managing user resumes"
+    }
+  ]
+}

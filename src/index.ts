@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import routes from './routes/routes';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,12 +6,17 @@ import rateLimit from 'express-rate-limit';
 import { connect } from './modules/database';
 import { logger } from './modules/logger';
 import { AuthenticatedRequest } from './middlewares/auth';
+
 import { corsOriginHandler, corsConfig } from './config/cors.config';
 import { logCorsConfig } from './utils/cors.utils';
-import { DateTime } from 'luxon';
+import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+
+logger.init();
+
 
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for development
@@ -38,38 +43,40 @@ app.use('/api', routes);
 app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'OK',
-    timestamp: DateTime.now().toString(),
-    version: '2.0.0'
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
   });
 });
 
-// Serve the main app for unknown non-API routes (SPA support)
-app.get('*', (req: Request, res: Response) => {
-  // Don't serve index.html for API routes or static assets
-  if (req.path.startsWith('/api') || req.path.includes('.')) {
-    return res.status(404).json({ message: 'Not Found' });
-  }
-});
 
 app.use((
   err: Error,
-  req: Request<unknown, unknown, unknown> & AuthenticatedRequest,
+  req: Request<any, any, any> & AuthenticatedRequest,
   res: Response,
+  next: NextFunction
 ) => {
-  logger.error('An error occurred', { error: err }, { jwt: req.context || {} });
+  logger.error('An error occurred', { error: err, jwt: req.context },);
   res.status(500).json({ message: 'Internal Server Error' });
 });
 
 connect()
   .then(() => {
     app.listen(PORT, () => {
-      logger.info(`Server is running on http://localhost:${PORT}`);
+      console.log(`Server is running on http://localhost:${PORT}`);
 
       // Log CORS configuration
       logCorsConfig();
+
+      // Start cron jobs
+      try {
+        logger.info('Cron jobs initialized successfully');
+      } catch (cronError) {
+        logger.error('Failed to initialize cron jobs:', cronError);
+      }
     });
   })
   .catch((err) => {
-    logger.error('Failed to connect to the database:', err);
+    console.error('Failed to connect to the database:', err);
     process.exit(1);
   });

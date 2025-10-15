@@ -5,7 +5,7 @@ export const strings = {
   },
   replacePlaceholders: (str: string, replacements: Record<string, string>): string => {
     return str.replace(/\[(.*?)\]/g, (match, key) => {
-      return Object.prototype.hasOwnProperty.call(replacements, key) ? replacements[key] : match;
+      return replacements.hasOwnProperty(key) ? replacements[key] : match;
     });
   }
 };

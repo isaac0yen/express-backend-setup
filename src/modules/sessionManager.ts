@@ -1,7 +1,6 @@
 import { db } from './database';
 import crypto from 'crypto';
 import { Request } from 'express';
-import { DateTime } from 'luxon';
 
 export interface SessionInfo {
   userId: number;
@@ -50,7 +49,7 @@ export class SessionManager {
    * Create a new session and invalidate others
    */
   static async createSession(userId: number, sessionInfo: SessionInfo, sessionToken: string): Promise<void> {
-    const expiresAt = DateTime.now().plus({ days: 30 }).toJSDate(); // 30 days
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
     // First, deactivate all existing sessions for this user
     await db.updateMany('user_sessions', 
@@ -84,7 +83,7 @@ export class SessionManager {
     }
 
     // Check if session has expired
-    if (DateTime.now() > DateTime.fromJSDate(session.expires_at)) {
+    if (new Date() > new Date(session.expires_at)) {
       // Deactivate expired session
       await db.updateOne('user_sessions', 
         { is_active: false }, 
@@ -119,7 +118,7 @@ export class SessionManager {
   /**
    * Get active sessions for a user
    */
-  static async getUserActiveSessions(userId: number): Promise<unknown[]> {
+  static async getUserActiveSessions(userId: number): Promise<any[]> {
     return await db.findMany('user_sessions', {
       user_id: userId,
       is_active: true
