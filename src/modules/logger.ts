@@ -127,6 +127,37 @@ export const logger = {
     return result;
   },
 
+  readLogs(level: string): string {
+    const logLevelDir = path.join(this.logDir, level);
+
+    if (!fs.existsSync(logLevelDir)) {
+      return "";
+    }
+
+    const files = fs.readdirSync(logLevelDir).sort().reverse();
+    let allLogs = "";
+
+    for (const file of files) {
+      const filePath = path.join(logLevelDir, file);
+      const content = fs.readFileSync(filePath, "utf-8");
+      allLogs += content;
+    }
+
+    return allLogs;
+  },
+
+  readInfo(): string {
+    return this.readLogs("info");
+  },
+
+  readWarn(): string {
+    return this.readLogs("warn");
+  },
+
+  readError(): string {
+    return this.readLogs("error");
+  },
+
   info(message: string, content?: unknown) {
     this.log("info", message, content);
     console.log("\x1b[34m", message, "\x1b[0m");
